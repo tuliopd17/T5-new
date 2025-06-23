@@ -1,0 +1,115 @@
+<% content_for :title, "Novo Livro" %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow">
+      <div class="card-header bg-success text-white">
+        <h4><i class="fas fa-plus"></i> Adicionar Novo Livro</h4>
+      </div>
+      <div class="card-body">
+        <%= form_with model: @book, local: true, class: "needs-validation", novalidate: true do |form| %>
+          <% if @book.errors.any? %>
+            <div class="alert alert-danger">
+              <h6>Foram encontrados os seguintes erros:</h6>
+              <ul class="mb-0">
+                <% @book.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="mb-3">
+                <%= form.label :title, "Título", class: "form-label" %>
+                <%= form.text_field :title, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Por favor, insira o título do livro.
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="mb-3">
+                <%= form.label :isbn, "ISBN", class: "form-label" %>
+                <%= form.text_field :isbn, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Por favor, insira o ISBN.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <%= form.label :category_id, "Categoria", class: "form-label" %>
+                <%= form.collection_select :category_id, @categories, :id, :name, 
+                                         { prompt: "Selecione uma categoria" }, 
+                                         { class: "form-select", required: true } %>
+                <div class="invalid-feedback">
+                  Por favor, selecione uma categoria.
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="mb-3">
+                <%= form.label :publication_date, "Data de Publicação", class: "form-label" %>
+                <%= form.date_field :publication_date, class: "form-control" %>
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <div class="mb-3">
+                <%= form.label :pages, "Número de Páginas", class: "form-label" %>
+                <%= form.number_field :pages, class: "form-control", min: 1 %>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :author_ids, "Autores", class: "form-label" %>
+            <%= form.collection_check_boxes :author_ids, @authors, :id, :name do |b| %>
+              <div class="form-check form-check-inline">
+                <%= b.check_box(class: "form-check-input") %>
+                <%= b.label(class: "form-check-label") %>
+              </div>
+            <% end %>
+            <small class="form-text text-muted">Selecione um ou mais autores.</small>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :description, "Descrição", class: "form-label" %>
+            <%= form.text_area :description, class: "form-control", rows: 4 %>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <%= link_to "Cancelar", books_path, class: "btn btn-secondary" %>
+            <%= form.submit "Criar Livro", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Validação de formulário Bootstrap
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>

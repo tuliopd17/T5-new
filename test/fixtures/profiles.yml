@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+admin_profile:
+  user: admin
+  bio: "Administrator profile"
+  avatar_url: "https://via.placeholder.com/150"
+  phone: "(41) 99999-9999"
+  address: "UFPR Campus"
+
+user_profile:
+  user: user
+  bio: "Regular user profile"
+  avatar_url: "https://via.placeholder.com/150"
+  phone: "(41) 88888-8888"
+  address: "Curitiba, PR"

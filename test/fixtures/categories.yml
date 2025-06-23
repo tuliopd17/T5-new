@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+fiction:
+  name: "Ficção"
+  description: "Livros de ficção em geral"
+
+technology:
+  name: "Tecnologia"
+  description: "Livros sobre programação e tecnologia"
+
+science:
+  name: "Ciência"
+  description: "Livros científicos"

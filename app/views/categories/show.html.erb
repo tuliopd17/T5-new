@@ -1,0 +1,118 @@
+<% content_for :title, @category.name %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">
+    <i class="fas fa-tag me-2"></i>
+    <%= @category.name %>
+  </h1>
+  <div>
+    <%= link_to categories_path, class: "btn btn-outline-secondary me-2" do %>
+      <i class="fas fa-arrow-left me-2"></i>Voltar
+    <% end %>
+    <% if current_user&.admin? %>
+      <%= link_to edit_category_path(@category), class: "btn btn-primary" do %>
+        <i class="fas fa-edit me-2"></i>Editar
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          Informações da Categoria
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <strong>Nome:</strong>
+          <p><%= @category.name %></p>
+        </div>
+        
+        <% if @category.description.present? %>
+          <div class="mb-3">
+            <strong>Descrição:</strong>
+            <p><%= simple_format(@category.description) %></p>
+          </div>
+        <% end %>
+        
+        <div class="mb-3">
+          <strong>Total de Livros:</strong>
+          <p>
+            <span class="badge bg-primary fs-6">
+              <%= pluralize(@category.books.count, 'livro', 'livros') %>
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-book me-2"></i>
+          Livros desta Categoria
+        </h5>
+        <% if current_user&.admin? %>
+          <%= link_to new_book_path(category_id: @category.id), class: "btn btn-sm btn-primary" do %>
+            <i class="fas fa-plus me-1"></i>Novo Livro
+          <% end %>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @category.books.any? %>
+          <div class="row">
+            <% @category.books.includes(:category, :authors).each do |book| %>
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <%= link_to book.title, book_path(book), class: "text-decoration-none" %>
+                    </h6>
+                    <% if book.authors.any? %>
+                      <p class="card-text">
+                        <small class="text-muted">
+                          <i class="fas fa-user-edit me-1"></i>
+                          <%= book.authors.pluck(:name).join(', ') %>
+                        </small>
+                      </p>
+                    <% end %>
+                    <% if book.publication_date %>
+                      <p class="card-text">
+                        <small class="text-muted">
+                          <i class="fas fa-calendar me-1"></i>
+                          <%= book.publication_date.year %>
+                        </small>
+                      </p>
+                    <% end %>
+                  </div>
+                  <div class="card-footer bg-transparent">
+                    <span class="badge bg-<%= book.available? ? 'success' : 'warning' %>">
+                      <%= book.available? ? 'Disponível' : 'Emprestado' %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-4">
+            <i class="fas fa-book-open fa-2x text-muted mb-3"></i>
+            <h5 class="text-muted">Nenhum livro nesta categoria</h5>
+            <p class="text-muted">Cadastre o primeiro livro desta categoria.</p>
+            <% if current_user&.admin? %>
+              <%= link_to new_book_path(category_id: @category.id), class: "btn btn-primary" do %>
+                <i class="fas fa-plus me-2"></i>Cadastrar Livro
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

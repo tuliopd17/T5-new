@@ -1,0 +1,185 @@
+<% content_for :title, @book.title %>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h3><i class="fas fa-book"></i> <%= @book.title %></h3>
+        <p class="mb-0"><strong>ISBN:</strong> <%= @book.isbn %></p>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong><i class="fas fa-tag"></i> Categoria:</strong> 
+               <%= link_to @book.category.name, @book.category, class: "text-decoration-none" %></p>
+            
+            <p><strong><i class="fas fa-users"></i> Autores:</strong>
+               <% @book.authors.each do |author| %>
+                 <%= link_to author.name, author, class: "badge bg-secondary text-decoration-none me-1" %>
+               <% end %>
+            </p>
+            
+            <% if @book.publication_date %>
+              <p><strong><i class="fas fa-calendar"></i> Publicação:</strong> 
+                 <%= @book.publication_date.strftime('%d/%m/%Y') %></p>
+            <% end %>
+            
+            <% if @book.pages %>
+              <p><strong><i class="fas fa-file-alt"></i> Páginas:</strong> <%= @book.pages %></p>
+            <% end %>
+          </div>
+          
+          <div class="col-md-6">
+            <!-- Status do livro -->
+            <div class="mb-3">
+              <strong>Status:</strong>
+              <% if @book.available? %>
+                <span class="badge bg-success fs-6">
+                  <i class="fas fa-check"></i> Disponível
+                </span>
+              <% else %>
+                <span class="badge bg-warning text-dark fs-6">
+                  <i class="fas fa-clock"></i> Emprestado
+                </span>
+              <% end %>
+            </div>
+            
+            <!-- Informações do empréstimo atual -->
+            <% if @loan %>
+              <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> Empréstimo Ativo</h6>
+                <p class="mb-1"><strong>Usuário:</strong> <%= @loan.user.name %></p>
+                <p class="mb-1"><strong>Data do empréstimo:</strong> <%= @loan.loan_date.strftime('%d/%m/%Y') %></p>
+                <p class="mb-1"><strong>Data de devolução:</strong> <%= @loan.return_date.strftime('%d/%m/%Y') %></p>
+                
+                <% if @loan.overdue? %>
+                  <p class="mb-0 text-danger">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>ATRASADO</strong> - <%= @loan.days_overdue %> dias
+                  </p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Descrição -->
+        <% if @book.description.present? %>
+          <hr>
+          <h5><i class="fas fa-align-left"></i> Descrição</h5>
+          <p class="text-muted"><%= simple_format(@book.description) %></p>
+        <% end %>
+      </div>
+      
+      <!-- Ações -->
+      <div class="card-footer bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <%= link_to "← Voltar aos Livros", books_path, class: "btn btn-outline-secondary" %>
+          </div>
+          
+          <div class="btn-group">
+            <!-- Empréstimo/Devolução -->
+            <% if @book.available? %>
+              <% unless current_user.admin? %>
+                <%= button_to "Emprestar", book_loans_path(@book), 
+                             method: :post, class: "btn btn-success",
+                             confirm: "Deseja emprestar este livro?" %>
+              <% end %>
+            <% else %>
+              <% if current_user.admin? || (@loan && @loan.user == current_user) %>
+                <%= button_to "Devolver", book_loan_path(@book, @loan), 
+                             method: :delete, class: "btn btn-warning",
+                             form: { data: { turbo_confirm: "Confirmar devolução do livro?" } } %>
+              <% end %>
+            <% end %>
+            
+            <!-- Ações de admin -->
+            <% if current_user.admin? %>
+              <%= link_to "Editar", edit_book_path(@book), class: "btn btn-outline-primary" %>
+              <%= link_to "Excluir", @book, data: { turbo_method: :delete, turbo_confirm: "Tem certeza que deseja excluir este livro?" }, 
+                         class: "btn btn-outline-danger" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar com informações adicionais -->
+  <div class="col-lg-4">
+    <!-- Outros livros da mesma categoria -->
+    <div class="card shadow mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Outros livros de <%= @book.category.name %></h5>
+      </div>
+      <div class="card-body">
+        <% related_books = @book.category.books.where.not(id: @book.id).limit(5) %>
+        <% if related_books.any? %>
+          <% related_books.each do |book| %>
+            <div class="d-flex align-items-center mb-2">
+              <div class="flex-grow-1">
+                <%= link_to book.title, book, class: "text-decoration-none fw-bold" %>
+                <br>
+                <small class="text-muted">
+                  por <%= book.authors.map(&:name).join(", ") %>
+                </small>
+              </div>
+              <% if book.available? %>
+                <span class="badge bg-success">Disponível</span>
+              <% else %>
+                <span class="badge bg-warning text-dark">Emprestado</span>
+              <% end %>
+            </div>
+            <hr class="my-2">
+          <% end %>
+          
+          <%= link_to "Ver todos em #{@book.category.name}", @book.category, 
+                     class: "btn btn-outline-primary btn-sm w-100" %>
+        <% else %>
+          <p class="text-muted mb-0">Nenhum outro livro nesta categoria.</p>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Livros do mesmo autor -->
+    <% if @book.authors.any? %>
+      <div class="card shadow">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><i class="fas fa-user"></i> Outros livros dos autores</h5>
+        </div>
+        <div class="card-body">
+          <% @book.authors.each do |author| %>
+            <h6><%= link_to author.name, author, class: "text-decoration-none" %></h6>
+            <% author_books = author.books.where.not(id: @book.id).limit(3) %>
+            <% if author_books.any? %>
+              <ul class="list-unstyled ms-3">
+                <% author_books.each do |book| %>
+                  <li class="mb-1">
+                    <%= link_to book.title, book, class: "text-decoration-none" %>
+                    <% if book.available? %>
+                      <span class="badge bg-success badge-sm">Disponível</span>
+                    <% else %>
+                      <span class="badge bg-warning text-dark badge-sm">Emprestado</span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="text-muted small ms-3">Nenhum outro livro deste autor.</p>
+            <% end %>
+            <% unless author == @book.authors.last %>
+              <hr>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+.badge-sm {
+  font-size: 0.7rem;
+}
+</style>

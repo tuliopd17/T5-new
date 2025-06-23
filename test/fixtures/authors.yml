@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: "João Silva"
+  birth_date: 1980-01-01
+  nationality: "Brasileiro"
+  biography: "Escritor de ficção contemporânea"
+
+two:
+  name: "Maria Santos"
+  birth_date: 1975-05-15
+  nationality: "Brasileira"
+  biography: "Especialista em tecnologia e programação"
+
+three:
+  name: "Pedro Costa"
+  birth_date: 1985-12-20
+  nationality: "Português"
+  biography: "Autor de livros científicos"

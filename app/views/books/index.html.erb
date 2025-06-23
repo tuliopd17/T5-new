@@ -1,0 +1,91 @@
+<% content_for :title, "Livros" %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><i class="fas fa-book"></i> Biblioteca de Livros</h2>
+  <% if current_user.admin? %>
+    <%= link_to "Novo Livro", new_book_path, class: "btn btn-success" %>
+  <% end %>
+</div>
+
+<!-- Busca -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <%= form_with url: books_path, method: :get, local: true, class: "d-flex" do |form| %>
+      <%= form.text_field :search, placeholder: "Buscar livros...", value: params[:search], 
+                         class: "form-control me-2" %>
+      <%= form.submit "Buscar", class: "btn btn-outline-primary" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Lista de Livros -->
+<div class="row">
+  <% @books.each do |book| %>
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm book-card">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0"><%= link_to book.title, book, class: "text-decoration-none" %></h5>
+          <small class="text-muted">
+            <i class="fas fa-tag"></i> <%= book.category.name %>
+          </small>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            <strong>Autores:</strong> 
+            <%= book.authors.map(&:name).join(", ") %>
+          </p>
+          
+          <p class="card-text">
+            <strong>ISBN:</strong> <%= book.isbn %><br>
+            <strong>Páginas:</strong> <%= book.pages %>
+          </p>
+          
+          <% if book.description.present? %>
+            <p class="card-text">
+              <%= truncate(book.description, length: 100) %>
+            </p>
+          <% end %>
+          
+          <!-- Status do livro -->
+          <% if book.available? %>
+            <span class="badge bg-success"><i class="fas fa-check"></i> Disponível</span>
+          <% else %>
+            <span class="badge bg-warning"><i class="fas fa-clock"></i> Emprestado</span>
+          <% end %>
+        </div>
+        
+        <div class="card-footer bg-transparent">
+          <div class="btn-group w-100" role="group">
+            <%= link_to "Ver", book, class: "btn btn-outline-primary btn-sm" %>
+            <% if current_user.admin? %>
+              <%= link_to "Editar", edit_book_path(book), class: "btn btn-outline-secondary btn-sm" %>
+              <%= link_to "Excluir", book, data: { turbo_method: :delete, turbo_confirm: "Tem certeza?" }, 
+                         class: "btn btn-outline-danger btn-sm" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @books.empty? %>
+  <div class="text-center py-5">
+    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">Nenhum livro encontrado</h4>
+    <% if current_user.admin? %>
+      <p class="text-muted">Que tal adicionar o primeiro livro?</p>
+      <%= link_to "Adicionar Livro", new_book_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>
+
+<style>
+.book-card {
+  transition: transform 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
+}
+</style>

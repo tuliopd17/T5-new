@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+active_loan:
+  user: user
+  book: one
+  loan_date: <%= 1.week.ago.to_date %>
+  return_date: <%= 1.week.from_now.to_date %>
+  returned: false
+  status: "active"
+
+returned_loan:
+  user: admin
+  book: two
+  loan_date: <%= 2.weeks.ago.to_date %>
+  return_date: <%= 1.week.ago.to_date %>
+  returned: true
+  status: "returned"
+
+overdue_loan:
+  user: user
+  book: three
+  loan_date: <%= 3.weeks.ago.to_date %>
+  return_date: <%= 1.week.ago.to_date %>
+  returned: false
+  status: "overdue"
